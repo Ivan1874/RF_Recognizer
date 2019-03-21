@@ -1,20 +1,21 @@
 import operator
-
 import cv2
 import numpy as np
 from camera import Cam
 from flask import Flask, render_template, Response
-
+from platform import system
 if False:
     from .camera import Cam
 
+ifwin = str(system()).lower() == 'windows'
+
+
 app = Flask(__name__)
-stream = Cam("127.0.0.1:8080")
+stream = Cam("192.168.43.54:8080" if ifwin else "127.0.0.1:8080")
 stream.start()
 
 hsv_min_white = np.array((51, 0, 180), np.uint8)
 hsv_max_white = np.array((171, 134, 255), np.uint8)
-
 
 hsv_min_red = np.array((0, 152, 73), np.uint8)
 hsv_max_red = np.array((206, 232, 162), np.uint8)
@@ -36,7 +37,10 @@ def index():
 
 def check_color(img, min, max, hsv, text):
     thresh = cv2.inRange(hsv, min, max)
-    _, contours0, hierarchy = cv2.findContours(thresh.copy(), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    if ifwin:
+        contours0, hierarchy = cv2.findContours(thresh.copy(), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    else:
+        _, contours0, hierarchy = cv2.findContours(thresh.copy(), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
     found = False
     for cnt in contours0:
         x, y, w, h = cv2.boundingRect(cnt)
@@ -70,7 +74,10 @@ def rec_num(img):
     im = img
     gray = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
     thresh = cv2.adaptiveThreshold(gray, 255, 1, 1, 11, 2)
-    _, contours, hierarchy = cv2.findContours(thresh, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+    if ifwin:
+        contours, hierarchy = cv2.findContours(thresh, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+    else:
+        _, contours, hierarchy = cv2.findContours(thresh, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
 
     closest = {'x': 0, 'y': 0, 'w': 0, 'h': 0, 'out': -1}
     al = {}
@@ -113,7 +120,8 @@ def gen():
         img = cv2.resize(img, (0, 0), fx=0.4, fy=0.4)
         img, red, green, yellow = get_color(img)
         num = rec_num(img)
-        cv2.putText(img, str(num), (15, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
+        w, h, _ = img.shape
+        cv2.putText(img, str(num), (w // 4, h // 2), cv2.FONT_HERSHEY_SIMPLEX, 4, (255, 255, 255), 4, cv2.LINE_AA)
         _, jpeg = cv2.imencode('.jpg', img)
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' + jpeg.tobytes() + b'\r\n')
