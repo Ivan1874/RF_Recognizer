@@ -107,13 +107,11 @@ def rec_num(img):
                     closest['out'] = str(int((results[0][0])))
     print(closest['out'])
     print(al)
-    dn = -1
     try:
-        dn = max(al.items(), key=operator.itemgetter(1))[0]
-        print("Detected number:", dn)
+        print("Detected number: " + max(al.items(), key=operator.itemgetter(1))[0])
     except:
         pass
-    return dn
+    return closest['out']
 
 
 def gen():
