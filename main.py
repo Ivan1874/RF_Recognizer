@@ -121,7 +121,7 @@ def gen():
         img, red, green, yellow = get_color(img)
         num = rec_num(img)
         w, h, _ = img.shape
-        cv2.putText(img, str(num), (w // 4, h // 2), cv2.FONT_HERSHEY_SIMPLEX, 4, (255, 255, 255), 4, cv2.LINE_AA)
+        cv2.putText(img, str(num), (15, h // 2 - 100), cv2.FONT_HERSHEY_SIMPLEX, 1.5, (255, 255, 255), 2, cv2.LINE_AA)
         _, jpeg = cv2.imencode('.jpg', img)
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' + jpeg.tobytes() + b'\r\n')
