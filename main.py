@@ -9,7 +9,7 @@ if False:
     from .camera import Cam
 
 app = Flask(__name__)
-stream = Cam("192.168.43.54:8080")
+stream = Cam("127.0.0.1:8080")
 stream.start()
 
 hsv_min_white = np.array((51, 0, 180), np.uint8)
@@ -36,7 +36,7 @@ def index():
 
 def check_color(img, min, max, hsv, text):
     thresh = cv2.inRange(hsv, min, max)
-    contours0, hierarchy = cv2.findContours(thresh.copy(), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    _, contours0, hierarchy = cv2.findContours(thresh.copy(), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
     found = False
     for cnt in contours0:
         x, y, w, h = cv2.boundingRect(cnt)
@@ -70,7 +70,7 @@ def rec_num(img):
     im = img
     gray = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
     thresh = cv2.adaptiveThreshold(gray, 255, 1, 1, 11, 2)
-    contours, hierarchy = cv2.findContours(thresh, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+    _, contours, hierarchy = cv2.findContours(thresh, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
 
     closest = {'x': 0, 'y': 0, 'w': 0, 'h': 0, 'out': -1}
     al = {}
