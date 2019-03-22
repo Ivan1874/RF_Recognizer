@@ -108,10 +108,12 @@ def rec_num(img):
     print(closest['out'])
     print(al)
     try:
-        print("Detected number: " + max(al.items(), key=operator.itemgetter(1))[0])
+        al.pop('-1')
+        n = max(al.items(), key=operator.itemgetter(1))[0]
+        print("Detected number: " + n)
+        return n
     except:
-        pass
-    return closest['out']
+        return closest['out']
 
 
 def gen():
